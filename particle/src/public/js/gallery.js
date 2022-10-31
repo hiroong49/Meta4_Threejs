@@ -1,10 +1,9 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { ImagePanel } from './ImagePanel';
+import { ImagePanel } from '../ImagePanel';
 import gsap from 'gsap';
-
-// ----- 주제: 이미지 패널 
+import { PreventDragClick } from '../PreventDragClick';
 
 export default function example() {
 	// Renderer
@@ -68,8 +67,8 @@ export default function example() {
 
     // Mesh
     const planeGeometry = new THREE.PlaneGeometry(0.3, 0.3);
-
     const textureLoader = new THREE.TextureLoader();
+    const boxGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.001);
 
 	// Points
 	const sphereGeometry = new THREE.SphereGeometry(1, 8, 8);
@@ -86,15 +85,22 @@ export default function example() {
         imagePanel = new ImagePanel({
             textureLoader,
             scene,
-            geometry: planeGeometry,
+            geometry: boxGeometry,
             imageSrc: `/images/0${Math.ceil(Math.random() * 9)}.png`,
             x: spherePositionArray[i],
             y: spherePositionArray[i + 1],
-            z: spherePositionArray[i + 2]
+            z: spherePositionArray[i + 2],
+            id: [i]/3
         });
-
+        
         imagePanels.push(imagePanel);
+        imagePanels.name = "그림 " + ([i]/3+1);
+        console.log(imagePanels.name);
     }
+
+    // Raycaster
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
 
 	// 그리기
 	const clock = new THREE.Clock();
@@ -109,6 +115,29 @@ export default function example() {
 		renderer.render(scene, camera);
 		renderer.setAnimationLoop(draw);
 	}
+
+    function checkIntersects() {
+        if(preventDragClick.mouseMoved) return;
+
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(scene.children);
+        for (const item of intersects) {
+            // console.log(item.object.name);
+            showPopup();
+            break;
+        }
+    }
+
+    // 팝업 띄우기
+    function showPopup() {
+        document.getElementById("popup_layer").style.display = "block";
+    }
+    //팝업 닫기
+    const btnPopClose = document.getElementById("btnPopClose");
+    btnPopClose.addEventListener('click', function() {
+        document.getElementById("popup_layer").style.display = "none";
+    })
 
 	function setSize() {
 		camera.aspect = window.innerWidth / window.innerHeight;
@@ -188,6 +217,16 @@ export default function example() {
 	// 이벤트
     btnWrapper.addEventListener('click', setShape);
 	window.addEventListener('resize', setSize);
+    canvas.addEventListener('click', e => {
+        // raycaster를 사용하려면 -1 ~ 1 로 좌표를 바꿔 줘야 함. 가운데가 0.
+        mouse.x = e.clientX / canvas.clientWidth * 2 - 1;
+        mouse.y = -(e.clientY / canvas.clientHeight * 2 - 1);
+        // console.log(mouse);
+        checkIntersects();
+    });
+
+    // Drag 클릭 방지
+    const preventDragClick = new PreventDragClick(canvas);
 
 	draw();
 }
