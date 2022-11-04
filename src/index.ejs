@@ -13,19 +13,17 @@
 		<div class="popup_box">
 			<div style="height: 10px; width: 375px; float: top;">
 			<a id="btnPopClose">
-				<!-- <img src="/images/ic_close_36px.svg" class="btnPopclose" width="30px" height="30px"> -->
+				<img src="/images/ic_close_36px.svg" class="btnPopclose" width="30px" height="30px">
 			</a>
 			</div>
 			<!--팝업 컨텐츠 영역-->
 			<div class="popup_cont">
-				<h5>Keyword</h5>
-				<p>
-				!!!!!!!!!!!!!!!!!!!!<br>
-					가사 들어갈 예정
-				</p>
+				<h5 id="keyword_box"><%= data.keyword %></h5>
+				<p id="lyrics_box"><%= data.lyrics %></p>
 			</div>
 		</div>
 	</div>
+	<script type="Text/javascript">var drawingSrc = <?= $data.drawing; ?></script>
 	<script type="module" src="/js/gallery.js" defer></script>
 </body>
 </html>
