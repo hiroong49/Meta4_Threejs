@@ -2,3 +2,5 @@ node_modules
 
 # dotenv environment
 .env
+
+.DS_Store
